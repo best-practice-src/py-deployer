@@ -70,3 +70,7 @@ To deploy your application, just run:
 ```bash
 pydeploy -s <dev|stag|prod|...>
 ```
+
+## Links
+
+- [PyPi](https://pypi.org/project/py-deployer/)
