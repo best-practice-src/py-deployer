@@ -25,8 +25,8 @@
 
 from paramiko import SSHClient
 
-from app.arguments import get_arguments
-from app.config import get_stage_dict, get_config_dict
+from .arguments import get_arguments
+from .config import get_stage_dict, get_config_dict
 
 
 def main():
