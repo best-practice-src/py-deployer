@@ -26,13 +26,14 @@
 from paramiko import SSHClient
 
 from .arguments import get_arguments
-from .config import get_stage_dict, get_config_dict
+from .config import Config
 
 
 def main():
     args = get_arguments()
-    stage_dict = get_stage_dict(args)
-    config_dict = get_config_dict()
+    config = Config()
+    stage_dict = config.get_stage_dict(args)
+    config_dict = config.get_config_dict()
     stage = stage_dict.get('stage')
 
     print(f'Deploying {stage}...')
