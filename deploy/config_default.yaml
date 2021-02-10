@@ -1,0 +1,17 @@
+deploy:
+  # Shared files and folders (between releases)
+  shared: [.env, .env.local]
+
+  # All available servers
+  servers:
+    stage:
+      hostname: '*'
+      port: 22
+      user: '*'
+      password: ~
+      deploy_path: '*'
+      stage: '*'
+      branch: '*'
+      identity_file: ~
+      repository: '*'
+      max_releases: 3
