@@ -15,6 +15,8 @@ pydeploy -s prod
 - Release version management
 - Use SSH protocol
 
+#### ⚠ This package does not currently support after-deployment scripts
+
 ## 1️⃣ Installation
 
 ```bash
