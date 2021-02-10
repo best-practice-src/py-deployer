@@ -1,9 +1,8 @@
-
 # ***************************************************************************** #
 #                                                                               #
-# main.py -- Main method.                                                       #
+# config_default.yaml -- Default configuration for Py Deploy                    #
 #                                                                               #
-#********************* IMPORTANT PY-DEPLOYER LICENSE TERMS ******************** #
+# ******************** IMPORTANT PY-DEPLOYER LICENSE TERMS ******************** #
 #                                                                               #
 # This file is part of py-deployer.                                             #
 #                                                                               #
@@ -21,7 +20,6 @@
 # along with py-deployer.  If not, see <http://www.gnu.org/licenses/>.          #
 #                                                                               #
 # ***************************************************************************** #
-"""
 
 deploy:
   # Shared files and folders (between releases)
