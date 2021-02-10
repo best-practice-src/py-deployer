@@ -52,7 +52,7 @@ def __get_argument_parser() -> ArgumentParser:
     :return: An ArgumentParser
     """
     argument_parser = ArgumentParser(
-        description="[OF - Institutional] City Coverage Update v"+str(settings.VERSION)+" (Py Microservice)\n"
+        description=f"Py Deployer v{settings.VERSION}\n"
     )
     # --- Optional arguments ---#
     argument_parser.add_argument("-v", "--version", help="show program's version number and exit", action="store_true")
