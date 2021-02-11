@@ -30,10 +30,11 @@ class DeploySSHClient:
             self.password,
             self.identity_file
         )
-        self.exec_command(f'mkdir -p {self.deploy_path}')
+        self.exec_command(f'mkdir -p {self.deploy_path}', False)
 
-    def exec_command(self, command) -> str:
-        command = f'cd {self.deploy_path} && {command}'
+    def exec_command(self, command, cd_deploy_path=True) -> str:
+        if cd_deploy_path:
+            command = f'cd {self.deploy_path} && {command}'
         ssh_stdin, ssh_stdout, ssh_stderr = self.__ssh_client.exec_command(command)
         ssh_stdin.channel.shutdown_write()
 
