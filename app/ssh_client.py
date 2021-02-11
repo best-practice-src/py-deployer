@@ -47,8 +47,10 @@ class DeploySSHClient:
         ssh_stderr.close()
 
         if exit_status != 0:
-            print(stderr_msg)
-            raise IOError(stderr_msg)
+            msg = stderr_msg.strip()
+            if msg == '':
+                msg = f'Command failed: {command} (Exit status: {exit_status})'
+            raise IOError(msg)
 
         return stdout_msg
 

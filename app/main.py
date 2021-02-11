@@ -23,6 +23,8 @@
 *********************************************************************************
 """
 
+import giturlparse
+
 from .arguments import get_arguments
 from .config import Config
 from .ssh_client import DeploySSHClient
@@ -34,6 +36,7 @@ def main():
     stage_dict = config.get_stage_dict(args)
     config_dict = config.get_config_dict()
     stage = stage_dict.get('stage')
+    repository_host = giturlparse.parse(stage_dict.get('repository')).host
 
     print(f'Deploying {stage}...')
 
@@ -50,6 +53,23 @@ def main():
     try:
 
         ssh_client.connect()
+
+        print('Checking known_hosts...')
+        repository_keys_output = ssh_client.exec_command(f'ssh-keyscan -H {repository_host}', False)
+        repository_keys = [k for k in repository_keys_output.split('\n') if k != '']
+        for repository_key in repository_keys:
+            repository_key_no_hash = repository_key.split('= ')[1]
+            try:
+                current_keys_output = ssh_client.exec_command(
+                    f"grep '{repository_key_no_hash}' ~/.ssh/known_hosts",
+                    False
+                )
+                current_keys = [k for k in current_keys_output.split('\n') if k != '']
+            except IOError:
+                current_keys = []
+            if len(current_keys) == 0:
+                ssh_client.exec_command(f"echo '{repository_key}' >> ~/.ssh/known_hosts", False)
+                print(f'Added {repository_host} key in ~/.ssh/known_hosts')
 
         # Make releases folder (if does not exists)
         ssh_client.exec_command('mkdir -p releases')
@@ -95,7 +115,7 @@ def main():
                 ssh_client.exec_command(f'rm -rf releases/{release_dir}')
 
     except IOError as e:
-        print(e)
+        print(str(e))
         return 10
 
     print('Done!')

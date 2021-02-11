@@ -65,7 +65,7 @@ deploy:
 
 ## 3️⃣ Deployment
 
-To deploy your application, just run:
+Deploy your application by running:
 
 ```bash
 pydeploy -s <dev|stag|prod|...>

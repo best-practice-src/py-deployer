@@ -56,7 +56,8 @@ class Config:
             print("'deploy' configuration not found. Check your config.yaml file")
             sys.exit(4)
         # Set default parameter
-        self.__config_dict = self.__default_config_dict | self.__config_dict
+        # self.__default_config_dict | self.__config_dict
+        self.__config_dict = Config.__merge_dicts(self.__default_config_dict, self.__config_dict)
         self.__check_config_dict('parameter', self.__config_dict, self.__default_config_dict)
 
     def get_stage_dict(self, args: Namespace) -> dict:
@@ -89,7 +90,7 @@ class Config:
         self.__check_config_dict('Stage parameter', stage_dict, self.__default_config_dict.get('servers').get('stage'))
 
         # Merge real stage with default one
-        return default_stage_dict | stage_dict
+        return Config.__merge_dicts(default_stage_dict, stage_dict)
 
     def get_config_dict(self) -> dict:
         config_dict = {
@@ -98,7 +99,7 @@ class Config:
         default_config_dict = {
             'shared': self.__default_config_dict.get('shared')
         }
-        return default_config_dict | config_dict
+        return Config.__merge_dicts(default_config_dict, config_dict)
 
     def __check_config_dict(self, parent_name: str, user_dict: dict, default_dict: dict):
         for default_key in default_dict.keys():
@@ -110,3 +111,7 @@ class Config:
                 sys.exit(5)
             if type(user_value) is dict and type(default_value) is dict:
                 self.__check_config_dict(default_key, user_value, default_value)
+
+    @staticmethod
+    def __merge_dicts(default_dict, user_dict) -> dict:
+        return {**default_dict, **user_dict}

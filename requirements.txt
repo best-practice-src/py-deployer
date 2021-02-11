@@ -3,3 +3,4 @@ pathlib
 pyyaml
 paramiko
 gitpython
+giturlparse
