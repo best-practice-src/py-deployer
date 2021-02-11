@@ -24,6 +24,7 @@
 """
 
 import giturlparse
+from paramiko.ssh_exception import AuthenticationException
 
 from .arguments import get_arguments
 from .config import Config
@@ -117,6 +118,10 @@ def main():
     except IOError as e:
         print(str(e))
         return 10
+    except AuthenticationException as e:
+        print(str(e))
+        print('Check your config.yaml')
+        return 20
 
     print('Done!')
     ssh_client.close()
