@@ -23,10 +23,9 @@
 *********************************************************************************
 """
 
-from paramiko import SSHClient
-
 from .arguments import get_arguments
 from .config import Config
+from .ssh_client import DeploySSHClient
 
 
 def main():
@@ -48,103 +47,57 @@ def main():
         stage_dict.get('identity_file')
     )
 
-    ssh_client.connect()
+    try:
 
-    # Make releases folder (if does not exists)
-    ssh_client.exec_command('mkdir -p releases')
-    # Make shared folder (if does not exists)
-    ssh_client.exec_command('mkdir -p shared')
+        ssh_client.connect()
 
-    release_dirs = [int(d) for d in ssh_client.exec_command('ls releases/').split('\n') if d != '']
-    release_dirs.sort()
+        # Make releases folder (if does not exists)
+        ssh_client.exec_command('mkdir -p releases')
+        # Make shared folder (if does not exists)
+        ssh_client.exec_command('mkdir -p shared')
 
-    if len(release_dirs) == 0:
-        current_release_dir = '1'
-    else:
-        current_release_dir = str(release_dirs[-1] + 1)
+        release_dirs = [int(d) for d in ssh_client.exec_command('ls releases/').split('\n') if d != '']
+        release_dirs.sort()
 
-    # Clone branch inside new release directory
-    branch = stage_dict.get("branch")
-    repository = stage_dict.get("repository")
+        if len(release_dirs) == 0:
+            current_release_dir = '1'
+        else:
+            current_release_dir = str(release_dirs[-1] + 1)
 
-    print(f'Cloning {branch} inside release {current_release_dir}...')
-    ssh_client.exec_command(f'git clone --single-branch --branch {branch} {repository} releases/{current_release_dir}')
+        # Clone branch inside new release directory
+        branch = stage_dict.get("branch")
+        repository = stage_dict.get("repository")
 
-    # Link shared files and directories
-    print('Linking shared files and directories...')
-    for shared_file in config_dict.get('shared'):
-        # Touch shared file
-        ssh_client.exec_command(f'touch shared/{shared_file}')
-        # Link shared file into release folder
-        ssh_client.exec_command(f'cd releases/{current_release_dir} && ln -s ../../shared/{shared_file}')
+        print(f'Cloning {branch} inside release {current_release_dir}...')
+        ssh_client.exec_command(
+            f'git clone --single-branch --branch {branch} {repository} releases/{current_release_dir}'
+        )
 
-    print('Updated current link...')
-    ssh_client.exec_command(f'rm -f current && ln -s releases/{current_release_dir} current')
+        # Link shared files and directories
+        print('Linking shared files and directories...')
+        for shared_file in config_dict.get('shared'):
+            # Touch shared file
+            ssh_client.exec_command(f'touch shared/{shared_file}')
+            # Link shared file into release folder
+            ssh_client.exec_command(f'cd releases/{current_release_dir} && ln -s ../../shared/{shared_file}')
 
-    # Clean old release directories
-    release_dirs = [int(d) for d in ssh_client.exec_command('ls releases/').split('\n') if d != '']
-    release_dirs.sort()
-    release_index = 0
-    for release_dir in release_dirs[::-1]:
-        release_index += 1
-        if release_index > stage_dict.get('max_releases'):
-            print(f'Deleting old release {release_dir}...')
-            ssh_client.exec_command(f'rm -rf releases/{release_dir}')
+        print('Updating current link...')
+        ssh_client.exec_command(f'rm -f current && ln -s releases/{current_release_dir} current')
+
+        # Clean old release directories
+        release_dirs = [int(d) for d in ssh_client.exec_command('ls releases/').split('\n') if d != '']
+        release_dirs.sort()
+        release_index = 0
+        for release_dir in release_dirs[::-1]:
+            release_index += 1
+            if release_index > stage_dict.get('max_releases'):
+                print(f'Deleting old release {release_dir}...')
+                ssh_client.exec_command(f'rm -rf releases/{release_dir}')
+
+    except IOError as e:
+        print(e)
+        return 10
 
     print('Done!')
-
     ssh_client.close()
-
-
-class DeploySSHClient:
-    def __init__(
-            self,
-            hostname: str,
-            port: int,
-            user: str,
-            deploy_path: str,
-            git_repository: str,
-            password: str or None,
-            identity_file: str or None
-    ):
-        self.hostname = hostname
-        self.port = port
-        self.user = user
-        self.deploy_path = deploy_path
-        self.git_repository = git_repository
-        self.password = password
-        self.identity_file = identity_file
-        self.__ssh_client = SSHClient()
-        self.__ssh_client.load_system_host_keys()
-
-    def connect(self):
-        self.__ssh_client.connect(
-            self.hostname,
-            self.port,
-            self.user,
-            self.password,
-            self.identity_file
-        )
-        self.exec_command(f'mkdir -p {self.deploy_path}')
-
-    def exec_command(self, command) -> str:
-        command = f'cd {self.deploy_path} && {command}'
-        ssh_stdin, ssh_stdout, ssh_stderr = self.__ssh_client.exec_command(command)
-        ssh_stdin.channel.shutdown_write()
-
-        stdout_msg = ssh_stdout.read().decode("utf8")
-        stderr_msg = ssh_stderr.read().decode("utf8")
-        exit_status = ssh_stdout.channel.recv_exit_status()
-
-        ssh_stdin.close()
-        ssh_stdout.close()
-        ssh_stderr.close()
-
-        if exit_status != 0:
-            print(stderr_msg)
-            raise IOError(f'Return code: {exit_status}')
-
-        return stdout_msg
-
-    def close(self):
-        self.__ssh_client.close()
+    return 1
