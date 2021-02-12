@@ -32,7 +32,7 @@ Create the file `deploy/config.yaml` inside your project as following:
 
 deploy:
   # Shared files and folders (between releases)
-  shared: [.env, .env.local]
+  shared: [.env]
 
   # All available servers (SSH configuration)
   servers:
@@ -45,7 +45,7 @@ deploy:
       stage: 'develop'
       branch: 'dev'
       identity_file: ~  # Ignore that if it stay in the default folder (~/.ssh)
-      repository: '*'   # Ignore that if you run pydeploy from a git project directory
+      repository: ~     # Ignore that if you run pydeploy from a git project directory
       max_releases: 3
     # ...
     prod:
@@ -57,7 +57,7 @@ deploy:
       stage: 'production'
       branch: 'master'
       identity_file: ~  # Ignore that if it stay in the default folder (~/.ssh)
-      repository: '*'   # Ignore that if you run pydeploy from a git project directory
+      repository: ~     # Ignore that if you run pydeploy from a git project directory
       max_releases: 3
 
 

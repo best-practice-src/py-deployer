@@ -125,4 +125,4 @@ def main():
 
     print('Done!')
     ssh_client.close()
-    return 1
+    return 0
