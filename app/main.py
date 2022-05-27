@@ -110,10 +110,6 @@ def main():
                 f'if [ ! -d $(dirname {shared_file}) ];then\n' +
                 f'  mkdir -p $(dirname {shared_file})\n' +
                 f'fi\n' +
-                # Touch shared file if it does not exists
-                f'if [ ! -f {shared_file} ];then\n' +
-                f'  touch {shared_file}\n' +
-                f'fi\n' +
                 # ----- LINK SHARED FILE INTO RELEASE FOLDER ----- #
                 f'cd ../releases/{current_release_dir}\n' +
                 # Make sure shared file parent exists or can be created
@@ -127,7 +123,9 @@ def main():
                 f'if [ -e {shared_file} ] || [ -L {shared_file} ];then\n' +
                 f'  rm -rf {shared_file}\n' +
                 f'fi\n' +
-                f'ln -s {"../" * shared_file.count("/")}../../shared/{shared_file} {shared_file}\n'
+                f'if [ -f {"../" * shared_file.count("/")}../../shared/{shared_file}]; then\n' +
+                f'  ln -s {"../" * shared_file.count("/")}../../shared/{shared_file} {shared_file}\n' +
+                f'fi'
             )
 
         print('Updating current link...')
