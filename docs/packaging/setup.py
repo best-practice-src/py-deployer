@@ -25,6 +25,8 @@ setup(
             'py_deployer',
             'py_deployer.app',
             'py_deployer.app.*',
+            'py_deployer.deploy',
+            'py_deployer.deploy.*',
         ),
         exclude=('py_deployer.docs', )
     ),
