@@ -22,6 +22,8 @@
 *                                                                               *
 *********************************************************************************
 """
+import re
+from pathlib import Path
 
 import giturlparse
 from paramiko.ssh_exception import AuthenticationException
@@ -98,9 +100,35 @@ def main():
         print('Linking shared files and directories...')
         for shared_file in config_dict.get('shared'):
             # Touch shared file
-            ssh_client.exec_command(f'touch shared/{shared_file}')
-            # Link shared file into release folder
-            ssh_client.exec_command(f'cd releases/{current_release_dir} && ln -s ../../shared/{shared_file}')
+            shared_file = re.sub('^/', '', shared_file)
+
+            # file in parent folders
+            ssh_client.exec_command(
+                # --------- MAKE SURE SHARED FILE EXISTS --------- #
+                f'cd shared\n' +
+                # Make shared directory if it does not exists
+                f'if [ ! -d $(dirname {shared_file}) ];then\n' +
+                f'  mkdir -p $(dirname {shared_file})\n' +
+                f'fi\n' +
+                # Touch shared file if it does not exists
+                f'if [ ! -f {shared_file} ];then\n' +
+                f'  touch {shared_file}\n' +
+                f'fi\n' +
+                # ----- LINK SHARED FILE INTO RELEASE FOLDER ----- #
+                f'cd ../releases/{current_release_dir}\n' +
+                # Make sure shared file parent exists or can be created
+                f'if [ -f $(dirname {shared_file}) ];then\n' +
+                f'  rm -rf $(dirname {shared_file})\n' +
+                f'fi\n' +
+                f'if [ ! -d $(dirname {shared_file}) ];then\n' +
+                f'  mkdir -p $(dirname {shared_file})\n' +
+                f'fi\n' +
+                # Link shared file into release folder
+                f'if [ -e {shared_file} ] || [ -L {shared_file} ];then\n' +
+                f'  rm -rf {shared_file}\n' +
+                f'fi\n' +
+                f'ln -s {"../" * shared_file.count("/")}../../shared/{shared_file} {shared_file}\n'
+            )
 
         print('Updating current link...')
         ssh_client.exec_command(f'rm -f current && ln -s releases/{current_release_dir} current')

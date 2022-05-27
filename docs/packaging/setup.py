@@ -62,7 +62,7 @@ setup(
     keywords='deployment python releases git zero-downtime ssh',
     project_urls={
         # 'Documentation': 'https://',
-        'Source': 'https://github.com/best-practice-src/py-deployer',
+        'Source': 'https://github.com/best-practice-src/py-deployer/blob/main/README.md',
         'Tracker': 'https://github.com/best-practice-src/py-deployer/issues',
     },
     install_requires=install_requires
