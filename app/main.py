@@ -22,8 +22,8 @@
 *                                                                               *
 *********************************************************************************
 """
+
 import re
-from pathlib import Path
 
 import giturlparse
 from paramiko.ssh_exception import AuthenticationException
@@ -100,7 +100,7 @@ def main():
         print('Linking shared files and directories...')
         for shared_file in config_dict.get('shared'):
             # Touch shared file
-            shared_file = re.sub('^/', '', shared_file)
+            shared_file = re.sub('^/|/$', '', shared_file)
 
             # file in parent folders
             ssh_client.exec_command(
