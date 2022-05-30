@@ -12,7 +12,7 @@ with open(pkg_src + "/requirements.txt", "r") as fh:
 
 setup(
     name="py-deployer",
-    version="1.7.3",
+    version="1.7.4",
     author="Fabrizio Fubelli",
     author_email="fabrizio@fubelli.org",
     description="Lightweight package to execute zero-downtime deployment on Linux servers",

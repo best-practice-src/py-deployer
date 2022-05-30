@@ -123,9 +123,7 @@ def main():
                 f'if [ -e {shared_file} ] || [ -L {shared_file} ];then\n' +
                 f'  rm -rf {shared_file}\n' +
                 f'fi\n' +
-                f'if [ -f {"../" * shared_file.count("/")}../../shared/{shared_file}]; then\n' +
-                f'  ln -s {"../" * shared_file.count("/")}../../shared/{shared_file} {shared_file}\n' +
-                f'fi'
+                f'ln -s {"../" * shared_file.count("/")}../../shared/{shared_file} {shared_file}\n' +
             )
 
         print('Updating current link...')
